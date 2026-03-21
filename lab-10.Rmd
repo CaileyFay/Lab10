@@ -16,7 +16,7 @@ library(openintro)
 evals <- as.data.frame(evals)
 ```
 
-### Part 1: Getting to know the outcome
+## Part 1: Getting to know the outcome
 Before we model anything, let’s look at what students actually do with the evaluation scale.
 
 1. The distribution is left skewed. Students are pretty generous - there is clustering around the higher scores. The average score is a 4.3 and the median is 4.3. The minimum score is 2.3. 
@@ -52,8 +52,7 @@ ggplot(evals, aes(x=bty_avg, y=score)) +
 
 Let’s see if the apparent trend in the plot is something more than natural variation.
 
-## Exercise 1. 
-A one-point increase in beauty predicts a .066 point increase in evaluation score. If someone had a beauty score of 0, their predicted evaluation score is 3.88. Score = .066(beauty) + 3.88
+1. A one-point increase in beauty predicts a .066 point increase in evaluation score. If someone had a beauty score of 0, their predicted evaluation score is 3.88. Score = .066(beauty) + 3.88
 ```{r}
 m_bty <- linear_reg() %>%
   set_engine("lm") %>%
@@ -62,8 +61,7 @@ m_bty <- linear_reg() %>%
 glance(m_bty)
 ```
 
-## Exercise 2. 
-Replot your existing visualization, this time add a regression line in orange. Turn off the default shading around the line. (By default, the plot includes shading around the line.)
+2. Replot your existing visualization, this time add a regression line in orange. Turn off the default shading around the line. (By default, the plot includes shading around the line.)
 ```{r}
 ggplot(evals, aes(x=bty_avg, y=score)) +
   geom_jitter() +
@@ -75,23 +73,20 @@ ggplot(evals, aes(x=bty_avg, y=score)) +
 ```
 
 
-## Exercise 3. 
-How much do evaluation scores change with beauty ratings (slope)? The slope is .066, meaning that evaluation scores increase by .066 for every one-point increase in beauty. The intercept is 3.88, which means that if someone had an attractiveness rating of 0, their predicted evaluation score is 3.88. In this case, the intercept is meaningful, since it is possible someone could get a 0 on attractiveness. The R-squared value is .035, which means that 3.5% of the variance in evaluation scores is explained by attractiveness. Therefore, attractiveness matters, but 96.5% of the variance in evaluation scores are left unexplained, so it is a minor piece of the story. 
+3. How much do evaluation scores change with beauty ratings (slope)? The slope is .066, meaning that evaluation scores increase by .066 for every one-point increase in beauty. The intercept is 3.88, which means that if someone had an attractiveness rating of 0, their predicted evaluation score is 3.88. In this case, the intercept is meaningful, since it is possible someone could get a 0 on attractiveness. The R-squared value is .035, which means that 3.5% of the variance in evaluation scores is explained by attractiveness. Therefore, attractiveness matters, but 96.5% of the variance in evaluation scores are left unexplained, so it is a minor piece of the story. 
 
 The shading is turned off because right not we are just looking at how the model fits the data in our sample. We are not trying to make any inferences about the population just yet. 
 
-### Part 3
+## Part 3
 
-## Exercise 1
-If I am correct in thinking female is coded as 1 and male as 2: the coefficients suggest that the average male professor has an evaluation score .14 points higher than the average female professor. Mean male = 4.37, mean female = 4.233. 
+1. If I am correct in thinking female is coded as 1 and male as 2: the coefficients suggest that the average male professor has an evaluation score .14 points higher than the average female professor. Mean male = 4.37, mean female = 4.233. 
 
 ```{r exercise1_code}
 m_gen <- lm(score ~ gender, data = evals)
 tidy(m_gen)
 ```
 
-## Exercise 2
-Mutating:
+2. Mutating:
 ```{r exercise2_code}
 evals <- evals %>%
   mutate(rank_relevel = as.factor(case_when(
@@ -120,8 +115,7 @@ m_ten <- lm(score ~ tenure_eligible, data = evals)
 tidy(m_ten)
 ```
 
-## Exercise 3
-Based on the regression outputs, interpret how teaching faculty and tenured faculty differ from that baseline. (Hint you should interpret the slopes and intercepts for all three models in context of the data.)
+3. Based on the regression outputs, interpret how teaching faculty and tenured faculty differ from that baseline. (Hint you should interpret the slopes and intercepts for all three models in context of the data.)
 
 In model 1, the baseline is teaching. The intercept is 4.28, which is the average score for teaching track professors. Tenure track professors, on average, score .13 below baseline, and tenured professors are .14 points below baseline. 
 
@@ -129,9 +123,75 @@ In model 2, the baseline is tenure. Now the intercept is 4.15 (representing the 
 
 In model 3, it is broken down into tenure eligible vs not, and so tenure track and tenure are collapsed into one group. The intercept is 4.28, which (once again) representings the teaching profs score. on average, the combined tenure eligible group is .14 points below the teaching score. 
 
-## Exercise 4 
-These models are all communicating the same thing, but swapping around whose mean is in the intercept slot. R2 is .01, meaning that it explains only 1% of the variance in evaluation scores. 
+4. These models are all communicating the same thing, but swapping around whose mean is in the intercept slot. R2 is .01, meaning that it explains only 1% of the variance in evaluation scores. 
 
-### Part 4  
+## Part 4 Multiple Linear Regression
 
-For Exercise 12, the `relevel()` function can be helpful!
+Is the “beauty effect” still there once we account for gender? Short answer is yes. Adding gender to the model increases the R2 from .03 to .06. Furthermore, attractiveness is still a significant predictor, controlling for gender. 
+```{r}
+#model 1
+m_bty <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(score ~ bty_avg, evals) 
+ glance(m_bty)
+
+#model 2
+m_bty_gen<- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(score ~ bty_avg + gender, evals) #%>%
+ # tidy()
+glance(m_bty_gen)
+```
+
+Then answer:
+
+1. What changes in the beauty slope when gender is added? Originally, the beauty slope was 0.066, and after adding in gender, it was .07, so it didn't really change. This means that gender and beauty explain different proportions of variance in scores. 
+
+2. For two professors with the same beauty rating, does gender still shift the predicted score? Yes. gender is a significant predictor of scores, over and above beauty. 
+
+3. Compare the adjusted  R2 values. Is gender actually helping much, or is beauty doing most of the work already?
+Both gender and beauty explain a small proportion of variance. beauty explains 3.5%, and then gender explains an additional 2.5%. 
+
+4. The beauty slope is just about the same as before (.069), meaning that holding rank constant, for every one point increase in beauty, the predicted score increases by .07 points. The tenure track coefficient is -.16. That means that controlling for beauty, (on average) tenure profs score 16 pts lower than teaching profs. In other words, if you consider two professors who are equally attractive, the teaching prof is expected to score .16pts higher on evaluations than the tenured prof. I hope I am interpretting this correctly - trying to get used to these R outputs after looking at beautiful SPSS tables for so long.
+```{r}
+m_bty_rank <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(score ~ bty_avg + rank, evals) %>%
+  tidy()
+ #glance(m_bty_rank)
+ #rsquared is .047
+```
+
+## Part 5 
+Going forward, only consider the following variables as potential predictors: rank, ethnicity, gender, language, age, cls_perc_eval, cls_did_eval, cls_students, cls_level, cls_profs, cls_credits, bty_avg.
+
+1. I would expect cls_did_eval to be the worst predictor, since its just the total number of students and that doesn't mean anything. The proportion of students who did the eval might have some predictive power, but just count data on this seems like a stretch. 
+
+2. Its not a significant predictor. The R2 is basically 0. I am assuming you don't want me to throw every variable you listed in the model and see what sticks though? 
+```{r}
+p5 <- lm(score ~ cls_did_eval, evals)
+summary(p5)
+```
+
+3. You should not include cls_did_eval, because that is already accounted for by these two variables - if you multiply them, it gives the total number of students who completed the evaluation. 
+
+4. Fit a full model with all predictors listed above (except for the one you decided to exclude) in the previous question.
+```{r}
+full <- lm(score ~ rank + ethnicity+ gender + language + age + cls_perc_eval + cls_students + cls_level +cls_profs + cls_credits + bty_avg, evals)
+summary(full)
+```
+
+5. The best model uses ethnicity, language, gender, age, percent eval, credits, and beauty. It explains nearly 16% of the variance in evaluation scores. 
+```{r}
+final <- lm(score ~  ethnicity + gender + language + age + cls_perc_eval + cls_credits + bty_avg, evals)
+summary(final)
+
+```
+
+6. Interpret the slopes of one numerical and one categorical predictor based on your final model.
+numerical: holding all other variables constant, for every additional year older, the evaluation score is expected to drop by .005 points. 
+categorical: the ethnicity slope is .20. This means that holding the other variables constant, a non-minority prof will on average have an evaluation score .2 points higher than a minority prof. 
+
+7. A handsome male english-speaking professor who got a large proportion of students to take the evaluation is more likely to receive a high score (but the model only predicts 16% of the variance, so its far from a sure bet).
+
+8. I am sort of comfortable. The model predicts a significant proportion of variance, and its plausible that demographic and course variables are relevant to the evaluation score. Inferentiallly it technically holds up, but its also unlikely that the sample is completely generalizable to other universitys. 
