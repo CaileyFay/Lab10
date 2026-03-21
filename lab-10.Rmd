@@ -1,0 +1,43 @@
+---
+title: "Lab 10 - Grading the professor"
+author: "Insert your name here"
+date: "Insert date here"
+output: github_document
+---
+
+Here is a link to the [lab instructions](https://datascience4psych.github.io/DataScience4Psych/lab10.html).
+
+## Load Packages and Data
+
+```{r load-packages, message=FALSE, warning=FALSE}
+library(tidyverse) 
+library(tidymodels)
+library(openintro)
+```
+
+## Exercise 1
+
+*Provide your answer here.*  
+Add code chunks as needed. Don't forget to label your code chunks.
+
+
+```{r exercise1_code}
+# Add your R code here
+```
+
+## Exercise 2
+
+*Provide your answer here.*  
+Add code chunks as needed.
+
+```{r exercise2_code}
+# Add your R code here
+```
+
+## Additional Exercises
+
+*Repeat the format above for additional exercises.*
+
+## Hint
+
+For Exercise 12, the `relevel()` function can be helpful!
