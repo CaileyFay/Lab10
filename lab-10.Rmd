@@ -60,7 +60,6 @@ m_bty <- linear_reg() %>%
   fit(score ~ bty_avg, evals) 
 
 glance(m_bty)
-
 ```
 
 ## Exercise 2. 
@@ -76,32 +75,63 @@ ggplot(evals, aes(x=bty_avg, y=score)) +
 ```
 
 
-Then, stepping back, interpret what this model is really saying:
-
 ## Exercise 3. 
 How much do evaluation scores change with beauty ratings (slope)? The slope is .066, meaning that evaluation scores increase by .066 for every one-point increase in beauty. The intercept is 3.88, which means that if someone had an attractiveness rating of 0, their predicted evaluation score is 3.88. In this case, the intercept is meaningful, since it is possible someone could get a 0 on attractiveness. The R-squared value is .035, which means that 3.5% of the variance in evaluation scores is explained by attractiveness. Therefore, attractiveness matters, but 96.5% of the variance in evaluation scores are left unexplained, so it is a minor piece of the story. 
 
 The shading is turned off because right not we are just looking at how the model fits the data in our sample. We are not trying to make any inferences about the population just yet. 
 
+### Part 3
 
+## Exercise 1
+If I am correct in thinking female is coded as 1 and male as 2: the coefficients suggest that the average male professor has an evaluation score .14 points higher than the average female professor. Mean male = 4.37, mean female = 4.233. 
 
 ```{r exercise1_code}
-# Add your R code here
+m_gen <- lm(score ~ gender, data = evals)
+tidy(m_gen)
 ```
 
 ## Exercise 2
-
-*Provide your answer here.*  
-Add code chunks as needed.
-
+Mutating:
 ```{r exercise2_code}
-# Add your R code here
+evals <- evals %>%
+  mutate(rank_relevel = as.factor(case_when(
+    rank == "teaching" ~ 2,
+    rank == "tenure track" ~ 0,
+    rank == "tenured" ~ 1)),
+    tenure_eligible = case_when(
+      rank == "teaching" ~ "no",
+      rank == "tenure track" ~ "yes",
+      rank == "tenured" ~ "yes"
+    ))
 ```
 
-## Additional Exercises
+Modeling:
+```{r}
+#evaluations by rank regular 
+m_rank <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(score ~ rank, evals) 
+glance(m_rank)
+#evaluations by rank_relevel
+m_rel <- lm(score ~ rank_relevel, data = evals)
+tidy(m_rel)
+#evaluations by tenure_eligible 
+m_ten <- lm(score ~ tenure_eligible, data = evals)
+tidy(m_ten)
+```
 
-*Repeat the format above for additional exercises.*
+## Exercise 3
+Based on the regression outputs, interpret how teaching faculty and tenured faculty differ from that baseline. (Hint you should interpret the slopes and intercepts for all three models in context of the data.)
 
-## Hint
+In model 1, the baseline is teaching. The intercept is 4.28, which is the average score for teaching track professors. Tenure track professors, on average, score .13 below baseline, and tenured professors are .14 points below baseline. 
+
+In model 2, the baseline is tenure. Now the intercept is 4.15 (representing the mean score for the tenured profs), and tenure track professors score .02 below the tenured profs, and teaching professors score .13 above tenured profs. 
+
+In model 3, it is broken down into tenure eligible vs not, and so tenure track and tenure are collapsed into one group. The intercept is 4.28, which (once again) representings the teaching profs score. on average, the combined tenure eligible group is .14 points below the teaching score. 
+
+## Exercise 4 
+These models are all communicating the same thing, but swapping around whose mean is in the intercept slot. R2 is .01, meaning that it explains only 1% of the variance in evaluation scores. 
+
+### Part 4  
 
 For Exercise 12, the `relevel()` function can be helpful!
