@@ -93,7 +93,8 @@ natural variation.
 
 1.  A one-point increase in beauty predicts a .066 point increase in
     evaluation score. If someone had a beauty score of 0, their
-    predicted evaluation score is 3.88. y = .066x + 3.88
+    predicted evaluation score is 3.88. y = .066x + 3.88. Rsquared is
+    .035.
 
 ``` r
 m_bty <- linear_reg() %>%
