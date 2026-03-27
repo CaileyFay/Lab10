@@ -20,9 +20,10 @@ evals <- as.data.frame(evals)
 Before we model anything, let’s look at what students actually do with
 the evaluation scale.
 
-1.  The distribution is left skewed. Students are pretty generous -
-    there is clustering around the higher scores. The average score is a
-    4.3 and the median is 4.3. The minimum score is 2.3.
+1.  Evals is 463 rows and 23 columns. The distribution is left skewed.
+    Students are pretty generous - there is clustering around the higher
+    scores. The average score is a 4.3 and the median is 4.3. The
+    minimum score is 2.3.
 
 ``` r
 ggplot(evals, aes(x=score)) +
@@ -46,14 +47,20 @@ summary(evals$score) %>% tidy()
     ##     <dbl> <dbl>  <dbl> <dbl> <dbl>   <dbl>
     ## 1     2.3   3.8    4.3  4.17   4.6       5
 
+``` r
+dim(evals)
+```
+
+    ## [1] 463  23
+
 2.  It looks like there could be a ceiling effect. The scatterplot shows
-    a very weak positive association, but the concentration of high
-    evaluation scores makes interpretation challenging. Scores are all
-    over the place.
+    a very weak positive association, but without jitter you can’t
+    really get a sense of the concentration of dots. Scores are all over
+    the place.
 
 ``` r
 ggplot(evals, aes(x=bty_avg, y=score)) +
-  geom_jitter() +
+  geom_point() +
   labs(title = "Attractiveness and Evaluation Scores",
        x = "Attractiveness Rating",
        y = "Evaluation Score") +
@@ -62,17 +69,15 @@ ggplot(evals, aes(x=bty_avg, y=score)) +
 
 ![](lab-10_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
-3.  Whoops I used jitter to begin with, because I looked at that regular
-    scatterplot and said “no.” Heres the plot without jitter. You can
-    also tell from this plot that there are a lot of high evaluation
-    scores and maybe there is a positve trend, but jitter is better.
-    Jitter shows more of the dots (if I’m not mistaken) which can help
-    highlight concentrations of observations with similar scores on x
-    and y.
+3.  Heres the plot with jitter. You can tell from this plot that there
+    are a lot of high evaluation scores and maybe there is a positve
+    trend. Jitter shows more of the dots (if I’m not mistaken) which can
+    help highlight concentrations of observations with similar scores on
+    x and y. Now it really looks like there is a ceiling effect.
 
 ``` r
 ggplot(evals, aes(x=bty_avg, y=score)) +
-  geom_point() +
+  geom_jitter() +
   labs(title = "Attractiveness and Evaluation Scores",
        x = "Attractiveness Rating",
        y = "Evaluation Score") +
@@ -88,7 +93,7 @@ natural variation.
 
 1.  A one-point increase in beauty predicts a .066 point increase in
     evaluation score. If someone had a beauty score of 0, their
-    predicted evaluation score is 3.88. Score = .066(beauty) + 3.88
+    predicted evaluation score is 3.88. y = .066x + 3.88
 
 ``` r
 m_bty <- linear_reg() %>%
